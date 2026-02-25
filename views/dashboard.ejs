@@ -1,0 +1,117 @@
+<% activePage = 'dashboard' %>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="stat-card blue">
+      <div class="stat-label">Total Resumes</div>
+      <div class="stat-value"><%= typeof resumes !== 'undefined' ? resumes.length : 0 %></div>
+      <i class="bi bi-file-earmark-person stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card green">
+      <div class="stat-label">Processed</div>
+      <div class="stat-value"><%= typeof resumes !== 'undefined' ? resumes.filter(r => r.status === 'processed').length : 0 %></div>
+      <i class="bi bi-check-circle stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card orange">
+      <div class="stat-label">Pending</div>
+      <div class="stat-value"><%= typeof resumes !== 'undefined' ? resumes.filter(r => r.status === 'pending').length : 0 %></div>
+      <i class="bi bi-hourglass-split stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card purple">
+      <div class="stat-label">Today</div>
+      <div class="stat-value">
+        <%
+          var today = 0;
+          if (typeof resumes !== 'undefined') {
+            var now = new Date();
+            today = resumes.filter(function(r) {
+              var d = new Date(r.createdAt);
+              return d.toDateString() === now.toDateString();
+            }).length;
+          }
+        %><%= today %>
+      </div>
+      <i class="bi bi-calendar-day stat-icon"></i>
+    </div>
+  </div>
+</div>
+
+<div class="card-dark">
+  <div class="card-header-custom">
+    <h6><i class="bi bi-clock-history me-2" style="color:var(--accent)"></i>Recent Submissions</h6>
+    <a href="/resume/upload-page" class="btn-accent" style="font-size:0.8rem; padding:6px 14px;">
+      <i class="bi bi-plus-lg"></i> Upload
+    </a>
+  </div>
+
+  <% if (typeof resumes !== 'undefined' && resumes.length > 0) { %>
+  <div style="overflow-x:auto;">
+    <table class="table-dark-custom">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Candidate</th>
+          <th>Email</th>
+          <th>File</th>
+          <th>Status</th>
+          <th>Submitted</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% resumes.forEach(function(resume, i) { %>
+        <tr>
+          <td style="color:var(--muted); font-size:0.8rem;"><%= i + 1 %></td>
+          <td>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="width:32px; height:32px; background:rgba(79,142,255,0.15); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:0.8rem; color:var(--accent); font-family:'Syne',sans-serif; font-weight:700;">
+                <%= resume.name.charAt(0).toUpperCase() %>
+              </div>
+              <span style="font-weight:400;"><%= resume.name %></span>
+            </div>
+          </td>
+          <td style="color:var(--muted);"><%= resume.email %></td>
+          <td>
+            <span style="font-size:0.8rem; color:var(--muted);">
+              <i class="bi bi-file-pdf" style="color:#ef4444; margin-right:4px;"></i><%= resume.fileName %>
+            </span>
+          </td>
+          <td>
+            <% if (resume.status === 'processed') { %>
+              <span class="badge-processed"><i class="bi bi-check-lg me-1"></i>Processed</span>
+            <% } else { %>
+              <span class="badge-pending"><i class="bi bi-hourglass me-1"></i>Pending</span>
+            <% } %>
+          </td>
+          <td style="color:var(--muted); font-size:0.82rem;">
+            <%= new Date(resume.createdAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) %>
+          </td>
+          <td>
+            <div style="display:flex; gap:8px;">
+              <a href="/resume/download/<%= resume.id %>" class="btn-ghost" style="font-size:0.78rem; padding:5px 10px;">
+                <i class="bi bi-download"></i> Download
+              </a>
+              <a href="/resume/delete/<%= resume.id %>" class="btn-danger-ghost"
+                onclick="return confirm('Delete this resume?')">
+                <i class="bi bi-trash3"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+  <% } else { %>
+  <div class="empty-state">
+    <i class="bi bi-inbox"></i>
+    <p>No resumes yet. <a href="/resume/upload-page" style="color:var(--accent); text-decoration:none;">Upload one</a> to get started.</p>
+  </div>
+  <% } %>
+</div>

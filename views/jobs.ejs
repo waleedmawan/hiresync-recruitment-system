@@ -1,0 +1,126 @@
+<% activePage = 'jobs' %>
+
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px;">
+  <div>
+    <h4 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1.3rem; margin-bottom:4px;">Job Listings</h4>
+    <p style="color:var(--muted); font-size:0.88rem; margin:0;">Manage open positions and recruitment postings</p>
+  </div>
+  <button class="btn-accent" onclick="toggleForm()">
+    <i class="bi bi-plus-lg"></i> Post New Job
+  </button>
+</div>
+
+<!-- Create Job Form (hidden by default) -->
+<div id="jobForm" style="display:none; margin-bottom:28px;">
+  <div class="card-dark">
+    <div class="card-header-custom">
+      <h6><i class="bi bi-pencil-square me-2" style="color:var(--accent)"></i>Post a New Job</h6>
+      <button onclick="toggleForm()" style="background:none; border:none; color:var(--muted); cursor:pointer; font-size:1.1rem;">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div style="padding:24px;">
+      <form action="/jobs-ui/create" method="POST">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label-custom">Job Title</label>
+            <input type="text" name="title" class="form-control-custom" placeholder="e.g. Senior Backend Developer" required />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label-custom">Recruiter ID</label>
+            <input type="number" name="recruiterId" class="form-control-custom" placeholder="e.g. 1" required />
+          </div>
+          <div class="col-12">
+            <label class="form-label-custom">Job Description</label>
+            <textarea name="description" class="form-control-custom" rows="3" placeholder="Describe the role, responsibilities..." required style="resize:vertical;"></textarea>
+          </div>
+          <div class="col-12">
+            <label class="form-label-custom">Requirements <span style="color:var(--muted); font-weight:400;">(optional)</span></label>
+            <textarea name="requirements" class="form-control-custom" rows="2" placeholder="e.g. 3+ years Node.js, MySQL, REST APIs..." style="resize:vertical;"></textarea>
+          </div>
+          <div class="col-12" style="display:flex; gap:10px; padding-top:4px;">
+            <button type="submit" class="btn-accent">
+              <i class="bi bi-check-lg"></i> Post Job
+            </button>
+            <button type="button" onclick="toggleForm()" class="btn-ghost">Cancel</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Jobs Table -->
+<div class="card-dark">
+  <div class="card-header-custom">
+    <h6><i class="bi bi-briefcase me-2" style="color:var(--accent)"></i>All Jobs <span style="color:var(--muted); font-weight:400; font-size:0.8rem; margin-left:8px;"><%= jobs.length %> total</span></h6>
+  </div>
+
+  <% if (jobs.length > 0) { %>
+  <div style="overflow-x:auto;">
+    <table class="table-dark-custom">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Requirements</th>
+          <th>Recruiter ID</th>
+          <th>Posted</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% jobs.forEach(function(job, i) { %>
+        <tr>
+          <td style="color:var(--muted); font-size:0.8rem;"><%= i + 1 %></td>
+          <td>
+            <div style="font-weight:500; color:var(--text);"><%= job.title %></div>
+          </td>
+          <td style="max-width:220px;">
+            <div style="color:var(--muted); font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px;">
+              <%= job.description %>
+            </div>
+          </td>
+          <td style="max-width:180px;">
+            <% if (job.requirements) { %>
+            <div style="color:var(--muted); font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:160px;">
+              <%= job.requirements %>
+            </div>
+            <% } else { %>
+            <span style="color:var(--border); font-size:0.8rem;">—</span>
+            <% } %>
+          </td>
+          <td>
+            <span style="background:rgba(91,141,238,0.12); color:var(--accent); padding:3px 10px; border-radius:20px; font-size:0.78rem;">
+              #<%= job.recruiterId %>
+            </span>
+          </td>
+          <td style="color:var(--muted); font-size:0.82rem;">
+            <%= new Date(job.createdAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) %>
+          </td>
+          <td>
+            <a href="/jobs-ui/delete/<%= job.id %>" class="btn-danger-ghost"
+              onclick="return confirm('Delete this job posting?')">
+              <i class="bi bi-trash3"></i> Delete
+            </a>
+          </td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+  <% } else { %>
+  <div class="empty-state">
+    <i class="bi bi-briefcase"></i>
+    <p>No jobs posted yet. <a href="#" onclick="toggleForm()" style="color:var(--accent); text-decoration:none;">Post your first job</a>.</p>
+  </div>
+  <% } %>
+</div>
+
+<script>
+  function toggleForm() {
+    var form = document.getElementById('jobForm');
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  }
+</script>

@@ -1,0 +1,203 @@
+<% activePage = 'candidates' %>
+
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px;">
+  <div>
+    <h4 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1.3rem; margin-bottom:4px;">Candidates</h4>
+    <p style="color:var(--muted); font-size:0.88rem; margin:0;">
+      <%= pagination.totalCount %> total applicant<%= pagination.totalCount !== 1 ? 's' : '' %>
+    </p>
+  </div>
+  <a href="/resume/upload-page" class="btn-accent">
+    <i class="bi bi-cloud-upload"></i> Upload Resume
+  </a>
+</div>
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="stat-card blue">
+      <div class="stat-label">Total</div>
+      <div class="stat-value"><%= pagination.totalCount %></div>
+      <i class="bi bi-people stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card green">
+      <div class="stat-label">Processed</div>
+      <div class="stat-value"><%= resumes.filter(r => r.status === 'processed').length %></div>
+      <i class="bi bi-check-circle stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card orange">
+      <div class="stat-label">Pending</div>
+      <div class="stat-value"><%= resumes.filter(r => r.status === 'pending').length %></div>
+      <i class="bi bi-hourglass-split stat-icon"></i>
+    </div>
+  </div>
+</div>
+
+<!-- Search & Filter Bar -->
+<div class="card-dark" style="margin-bottom:20px;">
+  <div style="padding:16px 20px;">
+    <form method="GET" action="/candidates" style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+      <div style="flex:1; min-width:200px;">
+        <input
+          type="text"
+          name="search"
+          class="form-control-custom"
+          placeholder="Search by name or email..."
+          value="<%= pagination.search %>"
+        />
+      </div>
+      <div>
+        <select name="status" class="form-control-custom" style="width:160px;">
+          <option value="" <%= pagination.status === '' ? 'selected' : '' %>>All Statuses</option>
+          <option value="pending"   <%= pagination.status === 'pending'   ? 'selected' : '' %>>Pending</option>
+          <option value="processed" <%= pagination.status === 'processed' ? 'selected' : '' %>>Processed</option>
+        </select>
+      </div>
+      <div>
+        <select name="limit" class="form-control-custom" style="width:120px;">
+          <option value="10"  <%= pagination.limit === 10  ? 'selected' : '' %>>10 / page</option>
+          <option value="25"  <%= pagination.limit === 25  ? 'selected' : '' %>>25 / page</option>
+          <option value="50"  <%= pagination.limit === 50  ? 'selected' : '' %>>50 / page</option>
+        </select>
+      </div>
+      <button type="submit" class="btn-accent" style="padding:10px 18px;">
+        <i class="bi bi-search"></i> Search
+      </button>
+      <% if (pagination.search || pagination.status) { %>
+        <a href="/candidates" class="btn-ghost" style="padding:10px 14px;">
+          <i class="bi bi-x-lg"></i> Clear
+        </a>
+      <% } %>
+    </form>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="card-dark">
+  <div class="card-header-custom">
+    <h6><i class="bi bi-person-lines-fill me-2" style="color:var(--accent)"></i>Candidate List</h6>
+    <span style="font-size:0.78rem; color:var(--muted);">
+      Page <%= pagination.currentPage %> of <%= pagination.totalPages %>
+    </span>
+  </div>
+
+  <% if (resumes.length > 0) { %>
+  <div style="overflow-x:auto;">
+    <table class="table-dark-custom">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Candidate</th>
+          <th>Email</th>
+          <th>Resume File</th>
+          <th>Status</th>
+          <th>Applied</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% resumes.forEach(function(resume, i) { %>
+        <tr>
+          <td style="color:var(--muted); font-size:0.8rem;">
+            <%= (pagination.currentPage - 1) * pagination.limit + i + 1 %>
+          </td>
+          <td>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="width:34px; height:34px; background:rgba(91,141,238,0.15); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:0.85rem; color:var(--accent); font-family:'Syne',sans-serif; font-weight:700; flex-shrink:0;">
+                <%= resume.name.charAt(0).toUpperCase() %>
+              </div>
+              <div>
+                <div style="font-weight:500; color:var(--text); font-size:0.88rem;"><%= resume.name %></div>
+                <div style="font-size:0.75rem; color:var(--muted);">User #<%= resume.userId %></div>
+              </div>
+            </div>
+          </td>
+          <td style="color:var(--muted); font-size:0.85rem;"><%= resume.email %></td>
+          <td>
+            <div style="display:flex; align-items:center; gap:6px; font-size:0.82rem; color:var(--muted);">
+              <i class="bi bi-file-pdf" style="color:#f87171;"></i>
+              <span style="max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                <%= resume.fileName %>
+              </span>
+            </div>
+          </td>
+          <td>
+            <% if (resume.status === 'processed') { %>
+              <span class="badge-processed"><i class="bi bi-check-lg me-1"></i>Processed</span>
+            <% } else if (resume.status === 'processing') { %>
+              <span style="background:rgba(91,141,238,0.12); color:var(--accent); border:1px solid rgba(91,141,238,0.3); padding:3px 10px; border-radius:20px; font-size:0.72rem; font-weight:500;">
+                <i class="bi bi-arrow-repeat me-1"></i>Processing
+              </span>
+            <% } else { %>
+              <span class="badge-pending"><i class="bi bi-hourglass me-1"></i>Pending</span>
+            <% } %>
+          </td>
+          <td style="color:var(--muted); font-size:0.82rem;">
+            <%= new Date(resume.createdAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) %>
+          </td>
+          <td>
+            <div style="display:flex; gap:8px;">
+              <a href="/resume/download/<%= resume.id %>" class="btn-ghost" style="font-size:0.78rem; padding:5px 10px;">
+                <i class="bi bi-download"></i> CV
+              </a>
+              <a href="/resume/delete/<%= resume.id %>" class="btn-danger-ghost"
+                onclick="return confirm('Remove this candidate?')">
+                <i class="bi bi-trash3"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination Controls -->
+  <% if (pagination.totalPages > 1) { %>
+  <div style="padding:16px 20px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between;">
+    <span style="font-size:0.82rem; color:var(--muted);">
+      Showing <%= (pagination.currentPage - 1) * pagination.limit + 1 %>–<%= Math.min(pagination.currentPage * pagination.limit, pagination.totalCount) %> of <%= pagination.totalCount %>
+    </span>
+    <div style="display:flex; gap:6px;">
+      <% if (pagination.currentPage > 1) { %>
+        <a href="/candidates?page=<%= pagination.currentPage - 1 %>&limit=<%= pagination.limit %>&search=<%= pagination.search %>&status=<%= pagination.status %>"
+           class="btn-ghost" style="padding:6px 12px; font-size:0.8rem;">
+          <i class="bi bi-chevron-left"></i>
+        </a>
+      <% } %>
+
+      <% for (let p = 1; p <= pagination.totalPages; p++) { %>
+        <a href="/candidates?page=<%= p %>&limit=<%= pagination.limit %>&search=<%= pagination.search %>&status=<%= pagination.status %>"
+           style="padding:6px 12px; font-size:0.8rem; border-radius:7px; text-decoration:none;
+                  <%= p === pagination.currentPage ? 'background:var(--accent); color:#fff;' : 'color:var(--muted); border:1px solid var(--border);' %>">
+          <%= p %>
+        </a>
+      <% } %>
+
+      <% if (pagination.currentPage < pagination.totalPages) { %>
+        <a href="/candidates?page=<%= pagination.currentPage + 1 %>&limit=<%= pagination.limit %>&search=<%= pagination.search %>&status=<%= pagination.status %>"
+           class="btn-ghost" style="padding:6px 12px; font-size:0.8rem;">
+          <i class="bi bi-chevron-right"></i>
+        </a>
+      <% } %>
+    </div>
+  </div>
+  <% } %>
+
+  <% } else { %>
+  <div class="empty-state">
+    <i class="bi bi-people"></i>
+    <p>
+      <% if (pagination.search || pagination.status) { %>
+        No candidates match your search. <a href="/candidates" style="color:var(--accent); text-decoration:none;">Clear filters</a>.
+      <% } else { %>
+        No candidates yet. <a href="/resume/upload-page" style="color:var(--accent); text-decoration:none;">Upload a resume</a> to add one.
+      <% } %>
+    </p>
+  </div>
+  <% } %>
+</div>
