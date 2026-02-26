@@ -38,6 +38,7 @@ app.use((req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
+const { connectMongo } = require('./models/mongo');
 
 sequelize.authenticate()
   .then(() => console.log('MySQL Connected Successfully'))
@@ -46,6 +47,7 @@ sequelize.authenticate()
 sequelize.sync()
   .then(() => {
     console.log('Database synced');
+    connectMongo();
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   })
   .catch(err => console.error('DB sync error:', err));

@@ -8,7 +8,10 @@ const Resume = sequelize.define('Resume', {
   email: { type: DataTypes.STRING, allowNull: false },
   fileName: { type: DataTypes.STRING, allowNull: false },
   filePath: { type: DataTypes.STRING, allowNull: false },
-  status: { type: DataTypes.ENUM('pending', 'processed'), defaultValue: 'pending' },
+  status: {
+    type: DataTypes.ENUM('pending', 'processing', 'processed'),
+    defaultValue: 'pending'
+  },
 }, {
   tableName: 'resumes',
   timestamps: true,
