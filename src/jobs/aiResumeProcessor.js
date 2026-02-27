@@ -2,6 +2,8 @@ const Queue = require('bull');
 const { connectMongo } = require('../models/mongo');
 const PdfService = require('../services/pdfService');
 const AiService = require('../services/aiService');
+const EmbeddingService = require('../services/embeddingService');
+const { deleteCache } = require('../utils/cache');
 
 const aiQueue = new Queue('ai-resume-processing', {
   redis: {
@@ -22,6 +24,10 @@ aiQueue.process(async (job, done) => {
     const aiResult = await AiService.extractResumeData(resumeText);
     console.log(`AI extraction complete for resume ID: ${id}`);
 
+    const textForEmbedding = [...aiResult.skills, aiResult.summary].join(' ');
+    const embedding = await EmbeddingService.generateEmbedding(textForEmbedding);
+    console.log(`Embedding generated (${embedding.length} dimensions) for resume ID: ${id}`);
+
     const db = await connectMongo();
     const collection = db.collection('resumesAI');
 
@@ -29,24 +35,28 @@ aiQueue.process(async (job, done) => {
       { resumeId: id },
       {
         $set: {
-          resumeId:    id,
+          resumeId,
           userId,
           rawText:     resumeText,
           skills:      aiResult.skills,
           education:   aiResult.education,
           experience:  aiResult.experience,
           summary:     aiResult.summary,
+          embedding,
           processedAt: new Date(),
         }
       },
       { upsert: true }
     );
 
-    console.log(`Resume ID: ${id} fully processed and saved`);
+    await deleteCache(`ai:resume:${id}`);
+    await deleteCache('ai:resume:all');
+
+    console.log(`Resume ID: ${id} fully processed and cache cleared`);
     done();
 
   } catch (err) {
-    console.error(`Resume processing failed for ID ${job.data.id}:`, err.message);
+    console.error(`Processing failed for resume ID ${job.data.id}:`, err.message);
     done(err);
   }
 });

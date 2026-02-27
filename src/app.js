@@ -7,13 +7,13 @@ dotenv.config();
 
 const sequelize       = require('./models/index');
 const rateLimiter     = require('./middlewares/rateLimiter');
+const { connectMongo } = require('./models/mongo');
 
 const app = express();
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
-
 app.use(rateLimiter(100, 15 * 60));
 
 app.set('view engine', 'ejs');
@@ -26,11 +26,15 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const jobRoutes       = require('./routes/jobRoutes');
 const candidateRoutes = require('./routes/candidateRoutes');
 const authRoutes      = require('./routes/authRoutes');
+const rankingRoutes   = require('./routes/rankingRoutes');
+const aiResultsRoutes = require('./routes/aiResultsRoutes');
 
 app.use('/', resumeRoutes);
 app.use('/', dashboardRoutes);
 app.use('/', jobRoutes);
 app.use('/', candidateRoutes);
+app.use('/', rankingRoutes);
+app.use('/', aiResultsRoutes);
 app.use('/auth', authRoutes);
 
 app.use((req, res) => {
@@ -38,7 +42,6 @@ app.use((req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-const { connectMongo } = require('./models/mongo');
 
 sequelize.authenticate()
   .then(() => console.log('MySQL Connected Successfully'))
