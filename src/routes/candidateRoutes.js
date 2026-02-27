@@ -1,6 +1,7 @@
 const express = require('express');
 const { Op } = require('sequelize');
 const Resume = require('../models/resumeModel');
+const { connectMongo } = require('../models/mongo');
 
 const router = express.Router();
 
@@ -47,6 +48,31 @@ router.get('/candidates', async (req, res) => {
 
   } catch (err) {
     console.error('Candidates Error:', err);
+    res.status(500).send('Server error');
+  }
+});
+
+router.get('/candidates/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+
+    const candidate = await Resume.findByPk(id);
+    if (!candidate) return res.status(404).send('Candidate not found');
+
+    const db     = await connectMongo();
+    const aiData = await db.collection('resumesAI').findOne(
+      { resumeId: id },
+      { projection: { rawText: 0, embedding: 0 } }
+    );
+
+    res.render('candidateProfile', {
+      title:     candidate.name,
+      candidate,
+      aiData:    aiData || null,
+    });
+
+  } catch (err) {
+    console.error('Profile error:', err.message);
     res.status(500).send('Server error');
   }
 });

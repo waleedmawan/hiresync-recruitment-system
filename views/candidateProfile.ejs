@@ -1,0 +1,129 @@
+<% activePage = 'candidates' %>
+
+<div style="display:flex; align-items:center; gap:16px; margin-bottom:28px;">
+  <a href="/candidates" class="btn-ghost">
+    <i class="bi bi-arrow-left"></i> Back
+  </a>
+  <div>
+    <h4 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1.3rem; margin-bottom:4px;">
+      <%= candidate.name %>
+    </h4>
+    <p style="color:var(--muted); font-size:0.88rem; margin:0;"><%= candidate.email %></p>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="stat-card blue">
+      <div class="stat-label">Skills Found</div>
+      <div class="stat-value"><%= aiData ? aiData.skills.length : 0 %></div>
+      <i class="bi bi-code-slash stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card green">
+      <div class="stat-label">Experience</div>
+      <div class="stat-value"><%= aiData ? aiData.experience.length : 0 %></div>
+      <i class="bi bi-briefcase stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card purple">
+      <div class="stat-label">Status</div>
+      <div class="stat-value" style="font-size:1rem; margin-top:8px;">
+        <% if (candidate.status === 'processed') { %>
+          <span class="badge-processed"><i class="bi bi-check-lg me-1"></i>Processed</span>
+        <% } else { %>
+          <span class="badge-pending"><i class="bi bi-hourglass me-1"></i><%= candidate.status %></span>
+        <% } %>
+      </div>
+      <i class="bi bi-activity stat-icon"></i>
+    </div>
+  </div>
+</div>
+
+<% if (aiData) { %>
+
+  <div class="card-dark mb-3">
+    <div class="card-header-custom">
+      <h6><i class="bi bi-robot me-2" style="color:var(--accent2)"></i>AI Generated Summary</h6>
+      <span style="font-size:0.75rem; color:var(--muted);">
+        Processed <%= new Date(aiData.processedAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) %>
+      </span>
+    </div>
+    <div style="padding:20px 24px;">
+      <p style="color:var(--text); font-size:0.9rem; line-height:1.7; margin:0;">
+        <%= aiData.summary %>
+      </p>
+    </div>
+  </div>
+
+  <div class="card-dark mb-3">
+    <div class="card-header-custom">
+      <h6><i class="bi bi-code-slash me-2" style="color:var(--accent)"></i>Extracted Skills</h6>
+      <span style="font-size:0.75rem; color:var(--muted);"><%= aiData.skills.length %> skills found</span>
+    </div>
+    <div style="padding:20px 24px; display:flex; flex-wrap:wrap; gap:8px;">
+      <% aiData.skills.forEach(function(skill) { %>
+        <span style="background:rgba(91,141,238,0.12); color:var(--accent); border:1px solid rgba(91,141,238,0.3); padding:5px 14px; border-radius:20px; font-size:0.8rem; font-weight:500;">
+          <%= skill %>
+        </span>
+      <% }) %>
+    </div>
+  </div>
+
+  <div class="card-dark mb-3">
+    <div class="card-header-custom">
+      <h6><i class="bi bi-briefcase me-2" style="color:var(--success)"></i>Work Experience</h6>
+    </div>
+    <div style="padding:0;">
+      <% aiData.experience.forEach(function(exp, i) { %>
+        <div style="padding:16px 24px; border-bottom:<%= i < aiData.experience.length - 1 ? '1px solid var(--border)' : 'none' %>; display:flex; align-items:center; gap:12px;">
+          <div style="width:36px; height:36px; background:rgba(52,211,153,0.12); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <i class="bi bi-building" style="color:var(--success); font-size:0.9rem;"></i>
+          </div>
+          <span style="color:var(--text); font-size:0.88rem;"><%= exp %></span>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+
+  <div class="card-dark mb-3">
+    <div class="card-header-custom">
+      <h6><i class="bi bi-mortarboard me-2" style="color:var(--warning)"></i>Education</h6>
+    </div>
+    <div style="padding:0;">
+      <% aiData.education.forEach(function(edu, i) { %>
+        <div style="padding:16px 24px; border-bottom:<%= i < aiData.education.length - 1 ? '1px solid var(--border)' : 'none' %>; display:flex; align-items:center; gap:12px;">
+          <div style="width:36px; height:36px; background:rgba(251,191,36,0.12); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <i class="bi bi-book" style="color:var(--warning); font-size:0.9rem;"></i>
+          </div>
+          <span style="color:var(--text); font-size:0.88rem;"><%= edu %></span>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+
+  <div style="display:flex; gap:12px; margin-top:8px;">
+    <a href="/resume/download/<%= candidate.id %>" class="btn-accent">
+      <i class="bi bi-download"></i> Download Resume
+    </a>
+    <a href="/candidates" class="btn-ghost">
+      <i class="bi bi-arrow-left"></i> Back to Candidates
+    </a>
+  </div>
+
+<% } else { %>
+  <div class="card-dark">
+    <div class="empty-state">
+      <i class="bi bi-hourglass-split"></i>
+      <p>
+        <% if (candidate.status === 'pending' || candidate.status === 'processing') { %>
+          AI processing not complete yet. Resume is currently being processed — check back shortly.
+        <% } else { %>
+          No AI data found. Upload a valid PDF to trigger AI processing.
+        <% } %>
+      </p>
+    </div>
+  </div>
+<% } %>

@@ -12,7 +12,6 @@
   </a>
 </div>
 
-<!-- Stats -->
 <div class="row g-3 mb-4">
   <div class="col-md-4">
     <div class="stat-card blue">
@@ -37,7 +36,6 @@
   </div>
 </div>
 
-<!-- Search & Filter Bar -->
 <div class="card-dark" style="margin-bottom:20px;">
   <div style="padding:16px 20px;">
     <form method="GET" action="/candidates" style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
@@ -76,7 +74,6 @@
   </div>
 </div>
 
-<!-- Table -->
 <div class="card-dark">
   <div class="card-header-custom">
     <h6><i class="bi bi-person-lines-fill me-2" style="color:var(--accent)"></i>Candidate List</h6>
@@ -141,6 +138,9 @@
           </td>
           <td>
             <div style="display:flex; gap:8px;">
+              <a href="/candidates/<%= resume.id %>" class="btn-ghost" style="font-size:0.78rem; padding:5px 10px;">
+                <i class="bi bi-person-lines-fill"></i> Profile
+              </a>
               <a href="/resume/download/<%= resume.id %>" class="btn-ghost" style="font-size:0.78rem; padding:5px 10px;">
                 <i class="bi bi-download"></i> CV
               </a>
@@ -156,7 +156,6 @@
     </table>
   </div>
 
-  <!-- Pagination Controls -->
   <% if (pagination.totalPages > 1) { %>
   <div style="padding:16px 20px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between;">
     <span style="font-size:0.82rem; color:var(--muted);">
