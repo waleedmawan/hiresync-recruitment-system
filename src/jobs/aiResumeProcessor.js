@@ -4,6 +4,7 @@ const PdfService = require('../services/pdfService');
 const AiService = require('../services/aiService');
 const EmbeddingService = require('../services/embeddingService');
 const { deleteCache } = require('../utils/cache');
+const logger = require('../utils/logger');
 
 const aiQueue = new Queue('ai-resume-processing', {
   redis: {
@@ -16,17 +17,17 @@ aiQueue.process(async (job, done) => {
   try {
     const { id, filePath, userId } = job.data;
 
-    console.log(`Processing resume ID: ${id}`);
+    logger.info(`Processing resume ID: ${id}`);
 
     const resumeText = await PdfService.extractText(filePath);
-    console.log(`Extracted ${resumeText.length} characters from resume ID: ${id}`);
+    logger.info(`Extracted ${resumeText.length} characters from resume ID: ${id}`);
 
     const aiResult = await AiService.extractResumeData(resumeText);
-    console.log(`AI extraction complete for resume ID: ${id}`);
+    logger.info(`AI extraction complete for resume ID: ${id}`);
 
     const textForEmbedding = [...aiResult.skills, aiResult.summary].join(' ');
     const embedding = await EmbeddingService.generateEmbedding(textForEmbedding);
-    console.log(`Embedding generated (${embedding.length} dimensions) for resume ID: ${id}`);
+    logger.info(`Embedding generated (${embedding.length} dimensions) for resume ID: ${id}`);
 
     const db = await connectMongo();
     const collection = db.collection('resumesAI');
@@ -52,11 +53,11 @@ aiQueue.process(async (job, done) => {
     await deleteCache(`ai:resume:${id}`);
     await deleteCache('ai:resume:all');
 
-    console.log(`Resume ID: ${id} fully processed and cache cleared`);
+    logger.info(`Resume ID: ${id} fully processed and cache cleared`);
     done();
 
   } catch (err) {
-    console.error(`Processing failed for resume ID ${job.data.id}:`, err.message);
+    logger.error(`Processing failed for resume ID ${job.data.id}: ${err.message}`, { stack: err.stack });
     done(err);
   }
 });

@@ -5,9 +5,10 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const sequelize       = require('./models/index');
-const rateLimiter     = require('./middlewares/rateLimiter');
+const sequelize        = require('./models/index');
+const rateLimiter      = require('./middlewares/rateLimiter');
 const { connectMongo } = require('./models/mongo');
+const logger           = require('./utils/logger');
 
 const app = express();
 
@@ -21,13 +22,13 @@ app.set('views', path.join(__dirname, '../views'));
 app.use(expressLayouts);
 app.set('layout', 'layout');
 
-const resumeRoutes    = require('./routes/resumeRoutes');
-const dashboardRoutes = require('./routes/dashboardRoutes');
-const jobRoutes       = require('./routes/jobRoutes');
-const candidateRoutes = require('./routes/candidateRoutes');
-const authRoutes      = require('./routes/authRoutes');
-const rankingRoutes   = require('./routes/rankingRoutes');
-const aiResultsRoutes = require('./routes/aiResultsRoutes');
+const resumeRoutes     = require('./routes/resumeRoutes');
+const dashboardRoutes  = require('./routes/dashboardRoutes');
+const jobRoutes        = require('./routes/jobRoutes');
+const candidateRoutes  = require('./routes/candidateRoutes');
+const authRoutes       = require('./routes/authRoutes');
+const rankingRoutes    = require('./routes/rankingRoutes');
+const aiResultsRoutes  = require('./routes/aiResultsRoutes');
 
 app.use('/', resumeRoutes);
 app.use('/', dashboardRoutes);
@@ -37,6 +38,11 @@ app.use('/', rankingRoutes);
 app.use('/', aiResultsRoutes);
 app.use('/auth', authRoutes);
 
+app.use((err, req, res, next) => {
+  logger.error(`Unhandled error on ${req.method} ${req.url}: ${err.message}`, { stack: err.stack });
+  res.status(500).json({ message: 'Something went wrong on the server' });
+});
+
 app.use((req, res) => {
   res.status(404).render('404', { title: 'Page Not Found' });
 });
@@ -44,14 +50,13 @@ app.use((req, res) => {
 const PORT = process.env.PORT || 5000;
 
 sequelize.authenticate()
-  .then(() => console.log('MySQL Connected Successfully'))
-  .catch(err => console.error('MySQL connection error:', err));
+  .then(() => logger.info('MySQL connected successfully'))
+  .catch(err => logger.error('MySQL connection error', { stack: err.stack }));
 
 sequelize.sync()
   .then(() => {
-    console.log('Database synced');
+    logger.info('Database synced');
     connectMongo();
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    app.listen(PORT, () => logger.info(`Server running on port ${PORT}`));
   })
-  
-  .catch(err => console.error('DB sync error:', err));
+  .catch(err => logger.error('DB sync error', { stack: err.stack }));

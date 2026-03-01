@@ -1,19 +1,24 @@
 const { MongoClient } = require('mongodb');
+const logger = require('../utils/logger');
 
-const url = process.env.MONGO_URI || 'mongodb://localhost:27017';
-
+const url    = process.env.MONGO_URI || 'mongodb://localhost:27017';
 const dbName = 'recruitmentAI';
 
-const client = new MongoClient(url);
+let db = null;
 
 async function connectMongo() {
+  if (db) return db;
+
   try {
+    const client = new MongoClient(url);
     await client.connect();
-    console.log('Connected to MongoDB');
-    return client.db(dbName);
+    db = client.db(dbName);
+    logger.info('MongoDB connected');
+    return db;
   } catch (err) {
-    console.error('MongoDB connection error:', err);
+    logger.error(`MongoDB connection error: ${err.message}`, { stack: err.stack });
+    throw err;
   }
 }
 
-module.exports = { client, connectMongo };
+module.exports = { connectMongo };
