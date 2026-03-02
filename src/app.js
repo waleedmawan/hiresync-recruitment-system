@@ -22,13 +22,14 @@ app.set('views', path.join(__dirname, '../views'));
 app.use(expressLayouts);
 app.set('layout', 'layout');
 
-const resumeRoutes     = require('./routes/resumeRoutes');
-const dashboardRoutes  = require('./routes/dashboardRoutes');
-const jobRoutes        = require('./routes/jobRoutes');
-const candidateRoutes  = require('./routes/candidateRoutes');
-const authRoutes       = require('./routes/authRoutes');
-const rankingRoutes    = require('./routes/rankingRoutes');
-const aiResultsRoutes  = require('./routes/aiResultsRoutes');
+const resumeRoutes    = require('./routes/resumeRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
+const jobRoutes       = require('./routes/jobRoutes');
+const candidateRoutes = require('./routes/candidateRoutes');
+const authRoutes      = require('./routes/authRoutes');
+const rankingRoutes   = require('./routes/rankingRoutes');
+const aiResultsRoutes = require('./routes/aiResultsRoutes');
+const pipelineRoutes  = require('./routes/pipelineRoutes');
 
 app.use('/', resumeRoutes);
 app.use('/', dashboardRoutes);
@@ -36,6 +37,7 @@ app.use('/', jobRoutes);
 app.use('/', candidateRoutes);
 app.use('/', rankingRoutes);
 app.use('/', aiResultsRoutes);
+app.use('/', pipelineRoutes);
 app.use('/auth', authRoutes);
 
 app.use((err, req, res, next) => {

@@ -104,13 +104,39 @@
     </div>
   </div>
 
-  <div style="display:flex; gap:12px; margin-top:8px;">
+  <div style="display:flex; gap:12px; margin-top:8px; margin-bottom:16px;">
     <a href="/resume/download/<%= candidate.id %>" class="btn-accent">
       <i class="bi bi-download"></i> Download Resume
     </a>
     <a href="/candidates" class="btn-ghost">
       <i class="bi bi-arrow-left"></i> Back to Candidates
     </a>
+  </div>
+
+  <div class="card-dark mb-3">
+    <div class="card-header-custom">
+      <h6><i class="bi bi-kanban me-2" style="color:var(--accent2)"></i>Pipeline Stage</h6>
+    </div>
+    <div style="padding:20px 24px;">
+      <form action="/pipeline/add" method="POST" style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+        <input type="hidden" name="resumeId" value="<%= candidate.id %>">
+        <select name="stage" class="form-control-custom" style="width:200px;">
+          <option value="applied">Applied</option>
+          <option value="shortlisted">Shortlisted</option>
+          <option value="interview">Interview</option>
+          <option value="offer">Offer Sent</option>
+          <option value="hired">Hired</option>
+          <option value="rejected">Rejected</option>
+        </select>
+        <input type="text" name="notes" class="form-control-custom" placeholder="Add a note (optional)" style="flex:1; min-width:200px;">
+        <button type="submit" class="btn-accent">
+          <i class="bi bi-arrow-right-circle"></i> Move to Stage
+        </button>
+      </form>
+      <a href="/pipeline" style="display:inline-block; margin-top:12px; font-size:0.82rem; color:var(--accent); text-decoration:none;">
+        <i class="bi bi-kanban me-1"></i> View full pipeline →
+      </a>
+    </div>
   </div>
 
 <% } else { %>

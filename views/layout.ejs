@@ -38,10 +38,7 @@
       --topbar-bg: rgba(255,255,255,0.92);
     }
 
-    body {
-      transition: background 0.2s, color 0.2s;
-    }
-
+    body { transition: background 0.2s, color 0.2s; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -303,7 +300,6 @@
     .table-dark-custom tr:last-child td { border-bottom: none; }
     .table-dark-custom tbody tr:hover td { background: rgba(91,141,238,0.05); }
 
-    /* Forms */
     .form-label-custom {
       font-size: 0.82rem;
       color: var(--text);
@@ -379,9 +375,9 @@
       transform: translate(20px, -20px);
     }
 
-    .stat-card.blue::after { background: var(--accent); }
+    .stat-card.blue::after   { background: var(--accent); }
     .stat-card.purple::after { background: var(--accent2); }
-    .stat-card.green::after { background: var(--success); }
+    .stat-card.green::after  { background: var(--success); }
     .stat-card.orange::after { background: var(--warning); }
 
     .stat-label {
@@ -406,9 +402,9 @@
       font-size: 1.3rem;
     }
 
-    .stat-card.blue .stat-icon { color: var(--accent); }
+    .stat-card.blue .stat-icon   { color: var(--accent); }
     .stat-card.purple .stat-icon { color: var(--accent2); }
-    .stat-card.green .stat-icon { color: var(--success); }
+    .stat-card.green .stat-icon  { color: var(--success); }
     .stat-card.orange .stat-icon { color: var(--warning); }
 
     .empty-state { text-align: center; padding: 60px 20px; }
@@ -458,6 +454,9 @@
     <a href="/jobs-ui" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'jobs' ? 'active' : '' %>">
       <i class="bi bi-briefcase"></i> Jobs
     </a>
+    <a href="/pipeline" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'pipeline' ? 'active' : '' %>">
+      <i class="bi bi-kanban"></i> Pipeline
+    </a>
 
     <span class="nav-section-label" style="margin-top:10px;">Actions</span>
     <a href="/resume/upload-page" class="sidebar-link <%= typeof activePage !== 'undefined' && activePage === 'upload' ? 'active' : '' %>">
@@ -501,11 +500,8 @@
 
   toggle.addEventListener('click', function() {
     body.classList.toggle('light');
-
     var isLight = body.classList.contains('light');
-
     icon.className = isLight ? 'bi bi-moon' : 'bi bi-sun';
-
     localStorage.setItem('theme', isLight ? 'light' : 'dark');
   });
 </script>

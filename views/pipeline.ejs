@@ -1,0 +1,177 @@
+<% activePage = 'pipeline' %>
+
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px;">
+  <div>
+    <h4 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1.3rem; margin-bottom:4px;">Recruitment Pipeline</h4>
+    <p style="color:var(--muted); font-size:0.88rem; margin:0;">Track candidates through your hiring process</p>
+  </div>
+  <a href="/candidates" class="btn-ghost">
+    <i class="bi bi-people"></i> All Candidates
+  </a>
+</div>
+
+<%
+const stageConfig = {
+  applied:     { label: 'Applied',     color: '#5b8dee', bg: 'rgba(91,141,238,0.1)',  icon: 'bi-inbox' },
+  shortlisted: { label: 'Shortlisted', color: '#a78bfa', bg: 'rgba(167,139,250,0.1)', icon: 'bi-star' },
+  interview:   { label: 'Interview',   color: '#fbbf24', bg: 'rgba(251,191,36,0.1)',  icon: 'bi-camera-video' },
+  offer:       { label: 'Offer Sent',  color: '#34d399', bg: 'rgba(52,211,153,0.1)',  icon: 'bi-envelope-check' },
+  hired:       { label: 'Hired',       color: '#10b981', bg: 'rgba(16,185,129,0.1)',  icon: 'bi-check-circle' },
+  rejected:    { label: 'Rejected',    color: '#f87171', bg: 'rgba(248,113,113,0.1)', icon: 'bi-x-circle' },
+};
+%>
+
+<div class="row g-3 mb-4">
+  <% stages.forEach(function(stage) { %>
+  <div class="col-md-2">
+    <div class="stat-card <%= stage === 'applied' ? 'blue' : stage === 'shortlisted' ? 'purple' : stage === 'interview' ? 'orange' : stage === 'offer' ? 'green' : stage === 'hired' ? 'green' : 'blue' %>">
+      <div class="stat-label"><%= stageConfig[stage].label %></div>
+      <div class="stat-value" style="font-size:1.6rem;"><%= pipeline[stage].length %></div>
+      <i class="bi <%= stageConfig[stage].icon %> stat-icon" style="color:<%= stageConfig[stage].color %>"></i>
+    </div>
+  </div>
+  <% }); %>
+</div>
+
+<div class="row g-3 mb-3">
+  <% ['applied','shortlisted','interview'].forEach(function(stage) { %>
+  <div class="col-md-4">
+    <div class="card-dark" style="height:100%;">
+
+      <div class="card-header-custom">
+        <h6>
+          <i class="bi <%= stageConfig[stage].icon %> me-2" style="color:<%= stageConfig[stage].color %>"></i>
+          <%= stageConfig[stage].label %>
+        </h6>
+        <span style="background:<%= stageConfig[stage].bg %>; color:<%= stageConfig[stage].color %>; border:1px solid <%= stageConfig[stage].color %>40; padding:2px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;">
+          <%= pipeline[stage].length %>
+        </span>
+      </div>
+
+      <!-- Cards -->
+      <div style="padding:12px; display:flex; flex-direction:column; gap:10px; min-height:100px;">
+
+        <% if (pipeline[stage].length === 0) { %>
+          <div style="text-align:center; padding:28px 0; color:var(--muted); font-size:0.82rem;">
+            <i class="bi bi-inbox" style="font-size:1.4rem; display:block; margin-bottom:8px; opacity:0.4;"></i>
+            No candidates
+          </div>
+        <% } %>
+
+        <% pipeline[stage].forEach(function(app) { %>
+        <div style="background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px; border-left: 3px solid <%= stageConfig[stage].color %>;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+            <div style="width:34px; height:34px; background:<%= stageConfig[stage].bg %>; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:0.85rem; color:<%= stageConfig[stage].color %>; font-family:'Syne',sans-serif; font-weight:700; flex-shrink:0;">
+              <%= app.candidateName.charAt(0).toUpperCase() %>
+            </div>
+            <div style="flex:1; min-width:0;">
+              <div style="font-weight:600; font-size:0.85rem; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                <%= app.candidateName %>
+              </div>
+              <div style="font-size:0.73rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                <%= app.candidateEmail %>
+              </div>
+            </div>
+          </div>
+
+          <% if (app.notes) { %>
+            <div style="font-size:0.75rem; color:var(--muted); margin-bottom:10px; padding:6px 10px; background:var(--bg); border-radius:6px; border-left:2px solid <%= stageConfig[stage].color %>;">
+              <%= app.notes %>
+            </div>
+          <% } %>
+
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <a href="/candidates/<%= app.resumeId %>" style="font-size:0.75rem; color:var(--accent); text-decoration:none;">
+              <i class="bi bi-person-lines-fill me-1"></i>View Profile
+            </a>
+            <form action="/pipeline/move" method="POST">
+              <input type="hidden" name="resumeId" value="<%= app.resumeId %>">
+              <select name="stage" onchange="this.form.submit()" class="form-control-custom" style="font-size:0.72rem; padding:4px 8px; width:120px;">
+                <option value="">Move to...</option>
+                <% stages.forEach(function(s) { %>
+                  <% if (s !== stage) { %>
+                    <option value="<%= s %>"><%= stageConfig[s].label %></option>
+                  <% } %>
+                <% }); %>
+              </select>
+            </form>
+          </div>
+        </div>
+        <% }); %>
+
+      </div>
+    </div>
+  </div>
+  <% }); %>
+</div>
+
+<div class="row g-3">
+  <% ['offer','hired','rejected'].forEach(function(stage) { %>
+  <div class="col-md-4">
+    <div class="card-dark" style="height:100%;">
+
+      <div class="card-header-custom">
+        <h6>
+          <i class="bi <%= stageConfig[stage].icon %> me-2" style="color:<%= stageConfig[stage].color %>"></i>
+          <%= stageConfig[stage].label %>
+        </h6>
+        <span style="background:<%= stageConfig[stage].bg %>; color:<%= stageConfig[stage].color %>; border:1px solid <%= stageConfig[stage].color %>40; padding:2px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;">
+          <%= pipeline[stage].length %>
+        </span>
+      </div>
+
+      <div style="padding:12px; display:flex; flex-direction:column; gap:10px; min-height:100px;">
+
+        <% if (pipeline[stage].length === 0) { %>
+          <div style="text-align:center; padding:28px 0; color:var(--muted); font-size:0.82rem;">
+            <i class="bi bi-inbox" style="font-size:1.4rem; display:block; margin-bottom:8px; opacity:0.4;"></i>
+            No candidates
+          </div>
+        <% } %>
+
+        <% pipeline[stage].forEach(function(app) { %>
+        <div style="background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px; border-left: 3px solid <%= stageConfig[stage].color %>;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+            <div style="width:34px; height:34px; background:<%= stageConfig[stage].bg %>; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:0.85rem; color:<%= stageConfig[stage].color %>; font-family:'Syne',sans-serif; font-weight:700; flex-shrink:0;">
+              <%= app.candidateName.charAt(0).toUpperCase() %>
+            </div>
+            <div style="flex:1; min-width:0;">
+              <div style="font-weight:600; font-size:0.85rem; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                <%= app.candidateName %>
+              </div>
+              <div style="font-size:0.73rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                <%= app.candidateEmail %>
+              </div>
+            </div>
+          </div>
+
+          <% if (app.notes) { %>
+            <div style="font-size:0.75rem; color:var(--muted); margin-bottom:10px; padding:6px 10px; background:var(--bg); border-radius:6px; border-left:2px solid <%= stageConfig[stage].color %>;">
+              <%= app.notes %>
+            </div>
+          <% } %>
+
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <a href="/candidates/<%= app.resumeId %>" style="font-size:0.75rem; color:var(--accent); text-decoration:none;">
+              <i class="bi bi-person-lines-fill me-1"></i>View Profile
+            </a>
+            <form action="/pipeline/move" method="POST">
+              <input type="hidden" name="resumeId" value="<%= app.resumeId %>">
+              <select name="stage" onchange="this.form.submit()" class="form-control-custom" style="font-size:0.72rem; padding:4px 8px; width:120px;">
+                <option value="">Move to...</option>
+                <% stages.forEach(function(s) { %>
+                  <% if (s !== stage) { %>
+                    <option value="<%= s %>"><%= stageConfig[s].label %></option>
+                  <% } %>
+                <% }); %>
+              </select>
+            </form>
+          </div>
+        </div>
+        <% }); %>
+
+      </div>
+    </div>
+  </div>
+  <% }); %>
+</div>
