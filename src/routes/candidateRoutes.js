@@ -12,6 +12,7 @@ router.get('/candidates', async (req, res) => {
     const search = req.query.search || '';
     const status = req.query.status || '';
     const offset = (page - 1) * limit;
+    
 
     const where = {};
 
