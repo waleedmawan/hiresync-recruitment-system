@@ -1,0 +1,154 @@
+<% activePage = 'jobs' %>
+
+<div style="display:flex; align-items:center; gap:16px; margin-bottom:28px;">
+  <a href="/jobs-ui" class="btn-ghost">
+    <i class="bi bi-arrow-left"></i> Back
+  </a>
+  <div>
+    <h4 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1.3rem; margin-bottom:4px;">
+      <%= job.title %>
+    </h4>
+    <p style="color:var(--muted); font-size:0.88rem; margin:0;">AI-ranked candidates by job fit</p>
+  </div>
+</div>
+
+<div class="card-dark mb-4">
+  <div class="card-header-custom">
+    <h6><i class="bi bi-briefcase me-2" style="color:var(--accent)"></i>Job Details</h6>
+    <span style="font-size:0.75rem; color:var(--muted);">
+      Posted <%= new Date(job.createdAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) %>
+    </span>
+  </div>
+  <div style="padding:20px 24px; display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+    <div>
+      <div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:6px;">Description</div>
+      <p style="color:var(--text); font-size:0.88rem; line-height:1.6; margin:0;"><%= job.description %></p>
+    </div>
+    <% if (job.requirements) { %>
+    <div>
+      <div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:6px;">Requirements</div>
+      <p style="color:var(--text); font-size:0.88rem; line-height:1.6; margin:0;"><%= job.requirements %></p>
+    </div>
+    <% } %>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="stat-card blue">
+      <div class="stat-label">Total Candidates</div>
+      <div class="stat-value"><%= matches.length %></div>
+      <i class="bi bi-people stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card green">
+      <div class="stat-label">Strong Fit (75%+)</div>
+      <div class="stat-value"><%= matches.filter(function(m){ return m.fit === 'strong'; }).length %></div>
+      <i class="bi bi-patch-check stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card purple">
+      <div class="stat-label">Good Fit (50-74%)</div>
+      <div class="stat-value"><%= matches.filter(function(m){ return m.fit === 'good'; }).length %></div>
+      <i class="bi bi-graph-up stat-icon"></i>
+    </div>
+  </div>
+</div>
+
+<div class="card-dark">
+  <div class="card-header-custom">
+    <h6><i class="bi bi-search-heart me-2" style="color:var(--accent2)"></i>Candidates Ranked by AI Match Score</h6>
+    <span style="font-size:0.75rem; color:var(--muted);">Powered by semantic embeddings</span>
+  </div>
+
+  <% if (matches.length === 0) { %>
+    <div class="empty-state">
+      <i class="bi bi-people"></i>
+      <p>No processed candidates found. Upload and process resumes first.</p>
+    </div>
+  <% } else { %>
+
+  <div style="padding:16px; display:flex; flex-direction:column; gap:12px;">
+    <% matches.forEach(function(match) { %>
+
+    <%
+      var fitColor  = match.fit === 'strong' ? 'var(--success)' : match.fit === 'good' ? 'var(--accent)' : 'var(--muted)';
+      var fitBg     = match.fit === 'strong' ? 'rgba(52,211,153,0.1)' : match.fit === 'good' ? 'rgba(91,141,238,0.1)' : 'rgba(155,163,192,0.1)';
+      var fitLabel  = match.fit === 'strong' ? 'Strong Fit' : match.fit === 'good' ? 'Good Fit' : 'Low Fit';
+      var fitIcon   = match.fit === 'strong' ? 'bi-patch-check-fill' : match.fit === 'good' ? 'bi-hand-thumbs-up' : 'bi-dash-circle';
+      var barColor  = match.fit === 'strong' ? 'var(--success)' : match.fit === 'good' ? 'var(--accent)' : 'var(--border)';
+    %>
+
+    <div style="background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:20px; border-left:3px solid <%= fitColor %>;">
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:14px;">
+
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:32px; height:32px; background:var(--surface); border:1px solid var(--border); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:0.8rem; color:var(--muted); font-weight:600; flex-shrink:0;">
+            #<%= match.rank %>
+          </div>
+          <div style="width:38px; height:38px; background:<%= fitBg %>; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:0.9rem; color:<%= fitColor %>; font-family:'Syne',sans-serif; font-weight:700; flex-shrink:0;">
+            <%= match.name.charAt(0).toUpperCase() %>
+          </div>
+          <div>
+            <div style="font-weight:600; font-size:0.92rem; color:var(--text);"><%= match.name %></div>
+            <div style="font-size:0.75rem; color:var(--muted);"><%= match.email %></div>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:12px; flex-shrink:0;">
+          <div style="text-align:right;">
+            <div style="font-family:'Syne',sans-serif; font-weight:700; font-size:1.6rem; color:<%= fitColor %>; line-height:1;">
+              <%= match.percentage %>%
+            </div>
+            <div style="font-size:0.7rem; color:var(--muted);">match score</div>
+          </div>
+          <span style="background:<%= fitBg %>; color:<%= fitColor %>; border:1px solid <%= fitColor %>40; padding:4px 12px; border-radius:20px; font-size:0.75rem; font-weight:600; white-space:nowrap;">
+            <i class="bi <%= fitIcon %> me-1"></i><%= fitLabel %>
+          </span>
+        </div>
+      </div>
+
+      <div style="background:var(--bg); border-radius:4px; height:6px; margin-bottom:14px; overflow:hidden;">
+        <div style="width:<%= match.percentage %>%; height:100%; background:<%= barColor %>; border-radius:4px; transition:width 0.3s;"></div>
+      </div>
+
+      <% if (match.summary) { %>
+      <p style="color:var(--muted); font-size:0.82rem; line-height:1.6; margin-bottom:12px; padding:10px 14px; background:var(--bg); border-radius:8px;">
+        <%= match.summary %>
+      </p>
+      <% } %>
+
+      <% if (match.skills && match.skills.length > 0) { %>
+      <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;">
+        <% match.skills.slice(0, 10).forEach(function(skill) { %>
+          <span style="background:rgba(91,141,238,0.1); color:var(--accent); border:1px solid rgba(91,141,238,0.25); padding:3px 10px; border-radius:20px; font-size:0.73rem; font-weight:500;">
+            <%= skill %>
+          </span>
+        <% }); %>
+        <% if (match.skills.length > 10) { %>
+          <span style="color:var(--muted); font-size:0.73rem; padding:3px 6px;">+<%= match.skills.length - 10 %> more</span>
+        <% } %>
+      </div>
+      <% } %>
+
+      <div style="display:flex; gap:10px; align-items:center;">
+        <a href="/candidates/<%= match.resumeId %>" class="btn-accent" style="font-size:0.78rem; padding:6px 14px;">
+          <i class="bi bi-person-lines-fill"></i> View Full Profile
+        </a>
+        <form action="/pipeline/add" method="POST" style="display:inline;">
+          <input type="hidden" name="resumeId" value="<%= match.resumeId %>">
+          <input type="hidden" name="stage" value="shortlisted">
+          <input type="hidden" name="notes" value="AI match score: <%= match.percentage %>% for <%= job.title %>">
+          <button type="submit" class="btn-ghost" style="font-size:0.78rem; padding:6px 14px;">
+            <i class="bi bi-star"></i> Shortlist
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <% }); %>
+  </div>
+  <% } %>
+</div>

@@ -22,7 +22,19 @@ const User = sequelize.define('User', {
   },
   role: {
     type: DataTypes.ENUM('admin', 'recruiter', 'candidate'),
-    defaultValue: 'candidate',
+    defaultValue: 'recruiter',
+  },
+  isVerified: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  otp: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  otpExpiresAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
   },
 }, {
   tableName: 'users',

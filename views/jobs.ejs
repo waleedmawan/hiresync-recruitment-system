@@ -10,7 +10,6 @@
   </button>
 </div>
 
-<!-- Create Job Form (hidden by default) -->
 <div id="jobForm" style="display:none; margin-bottom:28px;">
   <div class="card-dark">
     <div class="card-header-custom">
@@ -25,10 +24,6 @@
           <div class="col-md-6">
             <label class="form-label-custom">Job Title</label>
             <input type="text" name="title" class="form-control-custom" placeholder="e.g. Senior Backend Developer" required />
-          </div>
-          <div class="col-md-6">
-            <label class="form-label-custom">Recruiter ID</label>
-            <input type="number" name="recruiterId" class="form-control-custom" placeholder="e.g. 1" required />
           </div>
           <div class="col-12">
             <label class="form-label-custom">Job Description</label>
@@ -50,7 +45,6 @@
   </div>
 </div>
 
-<!-- Jobs Table -->
 <div class="card-dark">
   <div class="card-header-custom">
     <h6><i class="bi bi-briefcase me-2" style="color:var(--accent)"></i>All Jobs <span style="color:var(--muted); font-weight:400; font-size:0.8rem; margin-left:8px;"><%= jobs.length %> total</span></h6>
@@ -100,10 +94,15 @@
             <%= new Date(job.createdAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) %>
           </td>
           <td>
-            <a href="/jobs-ui/delete/<%= job.id %>" class="btn-danger-ghost"
-              onclick="return confirm('Delete this job posting?')">
-              <i class="bi bi-trash3"></i> Delete
-            </a>
+            <div style="display:flex; gap:8px;">
+              <a href="/jobs-ui/<%= job.id %>/match" class="btn-accent" style="font-size:0.78rem; padding:5px 10px;">
+                <i class="bi bi-search-heart"></i> Match
+              </a>
+              <a href="/jobs-ui/delete/<%= job.id %>" class="btn-danger-ghost"
+                onclick="return confirm('Delete this job posting?')">
+                <i class="bi bi-trash3"></i>
+              </a>
+            </div>
           </td>
         </tr>
         <% }); %>

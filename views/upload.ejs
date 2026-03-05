@@ -22,10 +22,6 @@
             <input type="email" name="email" class="form-control-custom" placeholder="e.g. john@example.com" required />
           </div>
 
-          <div style="margin-bottom: 20px;">
-            <label class="form-label-custom">User ID</label>
-            <input type="number" name="userId" class="form-control-custom" placeholder="e.g. 1" required />
-          </div>
 
           <div style="margin-bottom: 28px;">
             <label class="form-label-custom">Resume File</label>
@@ -60,6 +56,111 @@
 
   </div>
 </div>
+
+<% if (typeof duplicate !== 'undefined' && duplicate) { %>
+<div id="duplicateModal" style="
+  position:fixed; inset:0; z-index:9999;
+  background:rgba(0,0,0,0.7);
+  display:flex; align-items:center; justify-content:center;
+  backdrop-filter:blur(4px);
+  animation: fadeIn 0.2s ease;
+">
+  <div style="
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:32px;
+    width:100%;
+    max-width:500px;
+    margin:20px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.5);
+    animation: slideUp 0.25s ease;
+  ">
+
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+      <div style="width:44px; height:44px; background:rgba(251,191,36,0.15); border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <i class="bi bi-exclamation-triangle-fill" style="color:var(--warning); font-size:1.2rem;"></i>
+      </div>
+      <div>
+        <h5 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin:0; color:var(--text);">Duplicate Candidate Detected</h5>
+        <p style="color:var(--muted); font-size:0.78rem; margin:0;">This candidate already exists in the system</p>
+      </div>
+    </div>
+
+    <div style="background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.25); border-radius:10px; padding:14px 16px; margin-bottom:20px;">
+      <p style="font-size:0.85rem; color:var(--text); margin:0; line-height:1.6;">
+        <% if (reason === 'email') { %>
+          A candidate with email <strong style="color:var(--warning);"><%= newEmail %></strong> already exists.
+        <% } else { %>
+          This exact resume file has already been uploaded before.
+        <% } %>
+        <br>You can replace the existing record with the new upload, or cancel to keep the existing one.
+      </p>
+    </div>
+
+    <div style="background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin-bottom:24px;">
+      <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:10px;">Existing Record</div>
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+        <div style="width:34px; height:34px; background:rgba(91,141,238,0.15); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:0.85rem; color:var(--accent); font-family:'Syne',sans-serif; font-weight:700; flex-shrink:0;">
+          <%= duplicate.name.charAt(0).toUpperCase() %>
+        </div>
+        <div>
+          <div style="font-weight:600; font-size:0.88rem; color:var(--text);"><%= duplicate.name %></div>
+          <div style="font-size:0.75rem; color:var(--muted);"><%= duplicate.email %></div>
+        </div>
+        <div style="margin-left:auto;">
+          <% if (duplicate.status === 'processed') { %>
+            <span class="badge-processed"><i class="bi bi-check-lg me-1"></i>Processed</span>
+          <% } else { %>
+            <span class="badge-pending"><i class="bi bi-hourglass me-1"></i><%= duplicate.status %></span>
+          <% } %>
+        </div>
+      </div>
+      <div style="font-size:0.75rem; color:var(--muted); display:flex; align-items:center; gap:6px;">
+        <i class="bi bi-calendar3"></i>
+        Uploaded <%= new Date(duplicate.createdAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) %>
+        &nbsp;·&nbsp;
+        <i class="bi bi-file-pdf" style="color:#f87171;"></i>
+        <%= duplicate.fileName %>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:10px;">
+
+      <form action="/upload/replace" method="POST">
+        <input type="hidden" name="existingId" value="<%= duplicate.id %>">
+        <input type="hidden" name="newName"    value="<%= newName %>">
+        <input type="hidden" name="newEmail"   value="<%= newEmail %>">
+        <input type="hidden" name="newUserId"  value="<%= newUserId %>">
+        <input type="hidden" name="tempFile"   value="<%= tempFile %>">
+        <input type="hidden" name="tempName"   value="<%= tempName %>">
+        <button type="submit" class="btn-accent" style="width:100%; justify-content:center; padding:11px;">
+          <i class="bi bi-arrow-repeat"></i> Replace Existing Resume
+        </button>
+      </form>
+
+      <!-- View Profile -->
+      <a href="/candidates/<%= duplicate.id %>" class="btn-ghost" style="width:100%; justify-content:center; padding:11px; text-align:center;">
+        <i class="bi bi-person-lines-fill"></i> View Existing Profile
+      </a>
+
+      <!-- Cancel -->
+      <form action="/upload/cancel" method="POST">
+        <input type="hidden" name="tempFile" value="<%= tempFile %>">
+        <button type="submit" style="width:100%; justify-content:center; padding:11px; background:transparent; border:1px solid rgba(248,113,113,0.3); color:var(--danger); border-radius:7px; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; gap:6px; transition:all 0.15s;">
+          <i class="bi bi-x-lg"></i> Cancel — Keep Existing
+        </button>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes fadeIn  { from { opacity:0; } to { opacity:1; } }
+  @keyframes slideUp { from { transform:translateY(20px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+</style>
+<% } %>
 
 <script>
   var zone = document.getElementById('uploadZone');

@@ -1,30 +1,32 @@
-const { client } = require('../utils/cache');
+const Redis = require('ioredis');
+
+let redis;
+
+try {
+  redis = process.env.REDIS_URL
+    ? new Redis(process.env.REDIS_URL, { lazyConnect: true })
+    : new Redis({ host: '127.0.0.1', port: 6379, lazyConnect: true });
+
+  redis.on('error', () => {});
+} catch (e) {
+  redis = null;
+}
 
 function rateLimiter(maxRequests = 100, windowSeconds = 15 * 60) {
   return async (req, res, next) => {
+    if (!redis) return next();
+
     try {
-      const ip  = req.ip || req.headers['x-forwarded-for'] || 'unknown';
-      const key = `rate_limit:${ip}`;
-
-      const current = await client.incr(key);
-
-      if (current === 1) {
-        await client.expire(key, windowSeconds);
-      }
+      const key = `rl:${req.ip}`;
+      const current = await redis.incr(key);
+      if (current === 1) await redis.expire(key, windowSeconds);
 
       if (current > maxRequests) {
-        return res.status(429).json({
-          message: 'Too many requests. Please slow down and try again later.',
-        });
+        return res.status(429).json({ message: 'Too many requests. Please try again later.' });
       }
 
-      res.setHeader('X-RateLimit-Limit',     maxRequests);
-      res.setHeader('X-RateLimit-Remaining', Math.max(0, maxRequests - current));
-
       next();
-
     } catch (err) {
-      console.error('Rate limiter error:', err);
       next();
     }
   };
