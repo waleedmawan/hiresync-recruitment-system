@@ -2,7 +2,7 @@ const { MongoClient } = require('mongodb');
 const logger = require('../utils/logger');
 
 const url    = process.env.MONGO_URI || 'mongodb://localhost:27017';
-const dbName = 'recruitmentAI';
+const dbName = 'hiresyncAI';
 
 let db = null;
 

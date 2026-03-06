@@ -20,5 +20,6 @@ router.post('/reset-password',  AuthController.resetPassword);
 
 router.get('/profile',          requireAuth, AuthController.showProfile);
 router.post('/profile',         requireAuth, AuthController.updateProfile);
+router.post('/delete-account',  requireAuth, AuthController.deleteAccount);
 
 module.exports = router;

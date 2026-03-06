@@ -297,6 +297,59 @@ class AuthController {
       res.render('auth/profile', { title: 'My Profile', user: req.user, error: 'Something went wrong.', success: null });
     }
   }
+
+  static async deleteAccount(req, res) {
+    try {
+      const { password } = req.body;
+      const userId = req.user.id;
+
+      const user = await User.findByPk(userId);
+      if (!user) return res.redirect('/auth/login');
+
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.render('auth/profile', {
+          title: 'My Profile', user: req.user,
+          error: 'Incorrect password. Account not deleted.', success: null,
+        });
+      }
+
+      const Resume = require('../models/resumeModel');
+      const fs     = require('fs');
+      const resumes = await Resume.findAll({ where: { userId } });
+      for (const resume of resumes) {
+        if (fs.existsSync(resume.filePath)) fs.unlinkSync(resume.filePath);
+      }
+
+      const Job         = require('../models/jobModel');
+      const Application = require('../models/applicationModel');
+      await Application.destroy({ where: { userId } });
+      await Resume.destroy({ where: { userId } });
+      await Job.destroy({ where: { recruiterId: userId } });
+      await user.destroy();
+
+      // delete AI data from MongoDB
+      const { connectMongo } = require('../models/mongo');
+      const db = await connectMongo();
+      await db.collection('resumesAI').deleteMany({ userId });
+
+      logger.info(`Account deleted: ${user.email}`);
+
+      res.clearCookie('token');
+      res.render('auth/login', {
+        title: 'Sign In', layout: 'authLayout',
+        error: null,
+        success: 'Your account and all data have been permanently deleted.',
+      });
+
+    } catch (err) {
+      logger.error('Delete account error: ' + err.message);
+      res.render('auth/profile', {
+        title: 'My Profile', user: req.user,
+        error: 'Something went wrong. Please try again.', success: null,
+      });
+    }
+  }
 }
 
 module.exports = AuthController;

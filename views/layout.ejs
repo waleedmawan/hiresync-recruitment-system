@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= typeof title !== 'undefined' ? title : 'RecruitIQ' %> | RecruitIQ</title>
+  <title><%= typeof title !== 'undefined' ? title : 'HireSync' %> | HireSync</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
@@ -60,6 +60,7 @@
     .dropdown-item-custom.danger       { color:var(--danger); }
     .dropdown-item-custom.danger:hover { background:rgba(248,113,113,0.08); color:var(--danger); }
 
+    /* ── Common UI ── */
     .card-dark { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,0.15); }
     .card-header-custom { padding:18px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; background:var(--surface2); }
     .card-header-custom h6 { font-family:'Syne',sans-serif; font-weight:600; font-size:0.9rem; color:var(--text); margin:0; }
@@ -111,8 +112,8 @@
 
 <aside class="sidebar">
   <a href="/dashboard" class="sidebar-brand">
-    <div class="logo-text">Recruit<span class="logo-dot">IQ</span></div>
-    <small>Intelligence System</small>
+    <div class="logo-text">Hire<span class="logo-dot">Sync</span></div>
+    <small>AI Recruitment System</small>
   </a>
   <nav class="sidebar-nav">
     <span class="nav-section-label">Main</span>
@@ -151,7 +152,7 @@
           <a href="/auth/profile" class="dropdown-item-custom">
             <i class="bi bi-person"></i> My Profile
           </a>
-          <a href="/auth/logout" class="dropdown-item-custom danger">
+          <a href="#" onclick="openLogoutModal()" class="dropdown-item-custom danger">
             <i class="bi bi-box-arrow-right"></i> Logout
           </a>
         </div>
@@ -179,5 +180,30 @@
   avatarBtn.addEventListener('click', function(e) { e.stopPropagation(); avatarDropdown.classList.toggle('open'); });
   document.addEventListener('click', function() { avatarDropdown.classList.remove('open'); });
 </script>
+
+<div id="logoutModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center; padding:24px;">
+  <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; width:100%; max-width:380px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+    <div style="padding:24px; text-align:center;">
+      <div style="width:48px; height:48px; background:var(--surface2); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+        <i class="bi bi-box-arrow-right" style="color:var(--muted); font-size:1.2rem;"></i>
+      </div>
+      <h5 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; color:var(--text); margin-bottom:8px;">Sign out?</h5>
+      <p style="color:var(--muted); font-size:0.85rem; margin-bottom:24px;">You will be returned to the login page.</p>
+      <div style="display:flex; gap:10px;">
+        <button onclick="closeLogoutModal()" class="btn-ghost" style="flex:1; justify-content:center; padding:11px;">Cancel</button>
+        <a href="/auth/logout" class="btn-accent" style="flex:1; justify-content:center; padding:11px;">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openLogoutModal()  { document.getElementById('logoutModal').style.display = 'flex'; }
+  function closeLogoutModal() { document.getElementById('logoutModal').style.display = 'none'; }
+  document.getElementById('logoutModal').addEventListener('click', function(e) {
+    if (e.target === this) closeLogoutModal();
+  });
+</script>
 </body>
-</html>
